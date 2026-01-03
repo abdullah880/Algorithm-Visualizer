@@ -10,7 +10,7 @@
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-[Live Demo](#) • [Report Bug](#) • [Request Feature](#)
+[Live Demo](https://abdullah880.github.io/Algorithm-Visualizer) • [Report Bug](#) • [Request Feature](#)
 
 ---
 
@@ -171,15 +171,15 @@ cd algorithm-visualizer
 2. **Open in Browser**
 ```bash
 # Option 1: Direct file opening
-open index2.html
+open index.html
 
 # Option 2: Using Python simple server
 python -m http.server 8000
-# Navigate to http://localhost:8000/index2.html
+# Navigate to http://localhost:8000/index.html
 
 # Option 3: Using Node.js http-server
 npx http-server -p 8000
-# Navigate to http://localhost:8000/index2.html
+# Navigate to http://localhost:8000/index.html
 ```
 
 3. **Start Visualizing**
@@ -194,7 +194,7 @@ For development with live reload:
 ```bash
 # Using VS Code Live Server extension
 # Install: code --install-extension ritwickdey.LiveServer
-# Right-click index2.html → "Open with Live Server"
+# Right-click index.html → "Open with Live Server"
 
 # Or using browser-sync
 npm install -g browser-sync
