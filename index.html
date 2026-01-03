@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Algorithm Visualizer | Interactive Learning Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+
+      body {
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #1e293b 50%,
+          #0f172a 100%
+        );
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      .glass-effect {
+        background: rgba(30, 41, 59, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+
+      .pulse-animation {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(139, 92, 246, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(139, 92, 246, 0);
+        }
+      }
+
+      .bar {
+        transition: all 0.3s ease;
+        border-radius: 4px 4px 0 0;
+      }
+
+      .bar-highlight {
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
+        transform: translateY(-5px);
+      }
+
+      .bar-compare {
+        box-shadow: 0 0 15px rgba(245, 158, 11, 0.8);
+      }
+
+      .bar-swap {
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
+      }
+
+      .bar-sorted {
+        box-shadow: 0 0 15px rgba(34, 197, 94, 0.8);
+      }
+
+      .bar-selected {
+        box-shadow: 0 0 15px rgba(168, 85, 247, 0.8);
+      }
+
+      .slider-track {
+        -webkit-appearance: none;
+        height: 10px;
+        border-radius: 5px;
+        background: linear-gradient(
+          90deg,
+          rgba(139, 92, 246, 0.8) 0%,
+          rgba(99, 102, 241, 0.8) 100%
+        );
+      }
+
+      .slider-track::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: white;
+        cursor: pointer;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        border: 3px solid #8b5cf6;
+        transition: all 0.2s;
+      }
+
+      .slider-track::-webkit-slider-thumb:hover {
+        transform: scale(1.2);
+        box-shadow: 0 0 15px rgba(139, 92, 246, 0.8);
+      }
+
+      .glow-text {
+        text-shadow: 0 0 20px rgba(139, 92, 246, 0.7);
+      }
+
+      .mode-btn {
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .mode-btn::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .mode-btn:hover::after {
+        left: 100%;
+      }
+
+      .action-btn {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s;
+      }
+
+      .action-btn span {
+        position: relative;
+        z-index: 1;
+      }
+
+      .action-btn::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+      }
+
+      .action-btn:hover::before {
+        width: 300px;
+        height: 300px;
+      }
+
+      .metric-card {
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .metric-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, #8b5cf6, #6366f1);
+      }
+
+      .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+      }
+
+      .algorithm-select {
+        background: linear-gradient(
+          135deg,
+          rgba(30, 41, 59, 0.9),
+          rgba(15, 23, 42, 0.9)
+        );
+        background-size: 200% 200%;
+        animation: gradientShift 5s ease infinite;
+      }
+
+      @keyframes gradientShift {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      .status-ready {
+        color: #10b981;
+        text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+      }
+
+      .status-running {
+        color: #f59e0b;
+        text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+        animation: blink 1.5s infinite;
+      }
+
+      .status-paused {
+        color: #ef4444;
+        text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+      }
+
+      .status-completed {
+        color: #8b5cf6;
+        text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+      }
+
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.7;
+        }
+      }
+
+      .visualization-container {
+        min-height: 400px;
+        background: rgba(15, 23, 42, 0.6);
+        border-radius: 16px;
+        position: relative;
+      }
+
+      .visualization-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(139, 92, 246, 0.5),
+          transparent
+        );
+      }
+
+      @media (max-width: 768px) {
+        .control-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+        }
+
+        .action-btn {
+          width: 100%;
+        }
+
+        .metric-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body class="text-gray-100">
+    <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+      <!-- Header with logo and title -->
+      <div class="text-center mb-10">
+        <div class="flex items-center justify-center mb-4">
+          <div
+            class="w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-blue-500 flex items-center justify-center mr-4 shadow-lg"
+          >
+            <i class="fas fa-project-diagram text-white text-xl"></i>
+          </div>
+          <h1 class="text-5xl md:text-6xl font-bold text-white glow-text">
+            Algorithm Visualizer
+          </h1>
+        </div>
+        <p
+          class="text-white text-opacity-90 text-lg md:text-xl max-w-3xl mx-auto mt-4"
+        >
+          Watch <span class="font-bold text-purple-300">sorting</span> and
+          <span class="font-bold text-blue-300">searching</span> algorithms come
+          to life with interactive visualizations and real-time metrics
+        </p>
+        <div class="flex justify-center mt-6">
+          <div
+            class="flex items-center bg-gray-800 bg-opacity-50 rounded-full px-4 py-2"
+          >
+            <i class="fas fa-lightbulb text-yellow-400 mr-2"></i>
+            <span class="text-sm"
+              >Hover over bars to see values • Click Start to visualize</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Visualization Area with enhanced UI -->
+      <div
+        class="glass-effect rounded-2xl p-4 md:p-6 mb-8 shadow-2xl visualization-container"
+      >
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h2 class="text-xl font-bold text-white flex items-center">
+              <i class="fas fa-chart-bar mr-3 text-purple-400"></i>
+              <span>Algorithm Visualization</span>
+            </h2>
+            <p
+              id="algorithmDescription"
+              class="text-white text-opacity-80 text-sm mt-1"
+            >
+              Select an algorithm to see its description here
+            </p>
+          </div>
+          <div class="flex items-center">
+            <div class="mr-4 hidden md:block">
+              <div class="flex items-center">
+                <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
+                <span class="text-xs">Comparing</span>
+              </div>
+              <div class="flex items-center mt-1">
+                <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                <span class="text-xs">Sorted</span>
+              </div>
+            </div>
+            <button
+              id="fullscreenBtn"
+              class="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded-lg transition-all"
+            >
+              <i class="fas fa-expand"></i>
+            </button>
+          </div>
+        </div>
+
+        <div
+          id="visualizationArea"
+          class="w-full h-64 md:h-80 flex items-end justify-center gap-1 md:gap-2 px-2 pb-2"
+        >
+          <!-- Bars will be rendered here -->
+          <div
+            class="text-center text-white text-opacity-70 mt-20"
+            id="placeholderText"
+          >
+            <i class="fas fa-sliders-h text-4xl mb-4 text-purple-400"></i>
+            <p class="text-lg">
+              Adjust settings and click "Start" to begin visualization
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="flex justify-between items-center mt-4 text-sm text-white text-opacity-70"
+        >
+          <div id="minValue" class="font-medium">Min: 1</div>
+          <div class="flex items-center">
+            <i class="fas fa-info-circle mr-2"></i>
+            <span>Each bar represents an array element</span>
+          </div>
+          <div id="maxValue" class="font-medium">Max: 100</div>
+        </div>
+      </div>
+
+      <!-- Enhanced Metrics Panel -->
+      <div class="glass-effect rounded-2xl p-6 mb-8 shadow-2xl">
+        <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+          <i class="fas fa-tachometer-alt mr-3 text-purple-400"></i>
+          <span>Performance Metrics</span>
+        </h2>
+        <div
+          class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center metric-grid"
+        >
+          <div
+            class="metric-card rounded-xl p-4 bg-gradient-to-br from-gray-800 to-gray-900"
+          >
+            <div class="flex items-center justify-center mb-2">
+              <div
+                class="w-10 h-10 rounded-full bg-blue-900 bg-opacity-50 flex items-center justify-center mr-3"
+              >
+                <i class="fas fa-exchange-alt text-blue-400"></i>
+              </div>
+              <div>
+                <p class="text-white text-opacity-80 text-sm mb-1">
+                  Comparisons
+                </p>
+                <p id="comparisons" class="text-white text-3xl font-bold">0</p>
+              </div>
+            </div>
+            <div class="text-xs text-blue-300 mt-2">
+              Number of element comparisons
+            </div>
+          </div>
+          <div
+            class="metric-card rounded-xl p-4 bg-gradient-to-br from-gray-800 to-gray-900"
+          >
+            <div class="flex items-center justify-center mb-2">
+              <div
+                class="w-10 h-10 rounded-full bg-purple-900 bg-opacity-50 flex items-center justify-center mr-3"
+              >
+                <i class="fas fa-database text-purple-400"></i>
+              </div>
+              <div>
+                <p class="text-white text-opacity-80 text-sm mb-1">
+                  Array Accesses
+                </p>
+                <p id="accesses" class="text-white text-3xl font-bold">0</p>
+              </div>
+            </div>
+            <div class="text-xs text-purple-300 mt-2">
+              Times array elements were accessed
+            </div>
+          </div>
+          <div
+            class="metric-card rounded-xl p-4 bg-gradient-to-br from-gray-800 to-gray-900"
+          >
+            <div class="flex items-center justify-center mb-2">
+              <div
+                class="w-10 h-10 rounded-full bg-green-900 bg-opacity-50 flex items-center justify-center mr-3"
+              >
+                <i class="fas fa-clock text-green-400"></i>
+              </div>
+              <div>
+                <p class="text-white text-opacity-80 text-sm mb-1">
+                  Time Elapsed
+                </p>
+                <p id="timeElapsed" class="text-white text-3xl font-bold">
+                  0ms
+                </p>
+              </div>
+            </div>
+            <div class="text-xs text-green-300 mt-2">
+              Execution time of algorithm
+            </div>
+          </div>
+          <div
+            class="metric-card rounded-xl p-4 bg-gradient-to-br from-gray-800 to-gray-900"
+          >
+            <div class="flex items-center justify-center mb-2">
+              <div
+                class="w-10 h-10 rounded-full bg-yellow-900 bg-opacity-50 flex items-center justify-center mr-3"
+              >
+                <i class="fas fa-info-circle text-yellow-400"></i>
+              </div>
+              <div>
+                <p class="text-white text-opacity-80 text-sm mb-1">Status</p>
+                <p
+                  id="status"
+                  class="text-white text-2xl font-bold status-ready"
+                >
+                  Ready
+                </p>
+              </div>
+            </div>
+            <div class="text-xs text-yellow-300 mt-2">
+              Current algorithm state
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Enhanced Control Panel -->
+      <div class="glass-effect rounded-2xl p-6 mb-8 shadow-2xl">
+        <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+          <i class="fas fa-sliders-h mr-3 text-purple-400"></i>
+          <span>Visualization Controls</span>
+        </h2>
+
+        <!-- Mode Selection -->
+        <div class="mb-8">
+          <label
+            class="block text-white font-semibold mb-4 text-lg flex items-center"
+          >
+            <i class="fas fa-layer-group mr-2"></i>
+            Visualization Mode
+          </label>
+          <div class="flex gap-4">
+            <button
+              id="sortingModeBtn"
+              class="flex-1 mode-btn bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg flex items-center justify-center"
+            >
+              <i class="fas fa-sort-amount-down mr-3 text-xl"></i>
+              <div class="text-left">
+                <div class="font-bold text-lg">Sorting</div>
+                <div class="text-sm font-normal">
+                  Bubble, Quick, Merge, etc.
+                </div>
+              </div>
+            </button>
+            <button
+              id="searchingModeBtn"
+              class="flex-1 mode-btn bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-600 hover:to-gray-800 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg flex items-center justify-center"
+            >
+              <i class="fas fa-search mr-3 text-xl"></i>
+              <div class="text-left">
+                <div class="font-bold text-lg">Searching</div>
+                <div class="text-sm font-normal">Linear, Binary, etc.</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Algorithm Selection -->
+        <div class="mb-8">
+          <label
+            class="block text-white font-semibold mb-4 text-lg flex items-center"
+          >
+            <i class="fas fa-cogs mr-2"></i>
+            Select Algorithm
+          </label>
+          <div class="relative">
+            <select
+              id="algorithmSelect"
+              class="w-full algorithm-select text-white border border-white border-opacity-30 rounded-xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-purple-400 font-medium appearance-none"
+            >
+              <!-- Options will be populated by JavaScript -->
+            </select>
+            <div
+              class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4"
+            >
+              <i class="fas fa-chevron-down text-purple-400"></i>
+            </div>
+          </div>
+          <div
+            id="algorithmInfo"
+            class="mt-3 p-3 bg-gray-800 bg-opacity-50 rounded-lg text-sm text-white text-opacity-80"
+          >
+            <i class="fas fa-info-circle text-purple-400 mr-2"></i>
+            <span
+              >Select an algorithm to see its characteristics and time
+              complexity</span
+            >
+          </div>
+        </div>
+
+        <!-- Controls Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 control-grid">
+          <!-- Array Size -->
+          <div class="bg-gray-800 bg-opacity-50 p-5 rounded-xl">
+            <label
+              class="block text-white font-semibold mb-4 text-lg flex items-center"
+            >
+              <i class="fas fa-ruler mr-3"></i>
+              <span
+                >Array Size:
+                <span id="sizeValue" class="text-purple-300">50</span>
+                elements</span
+              >
+            </label>
+            <input
+              id="sizeSlider"
+              type="range"
+              min="10"
+              max="100"
+              value="50"
+              class="slider-track w-full h-3 rounded-lg cursor-pointer"
+            />
+            <div
+              class="flex justify-between text-sm text-white text-opacity-70 mt-2"
+            >
+              <span>Small (10)</span>
+              <span>Medium (50)</span>
+              <span>Large (100)</span>
+            </div>
+            <p class="text-xs text-white text-opacity-60 mt-3">
+              <i class="fas fa-lightbulb mr-1"></i>
+              Smaller arrays visualize faster, larger arrays show more detail
+            </p>
+          </div>
+
+          <!-- Animation Speed -->
+          <div class="bg-gray-800 bg-opacity-50 p-5 rounded-xl">
+            <label
+              class="block text-white font-semibold mb-4 text-lg flex items-center"
+            >
+              <i class="fas fa-tachometer-alt mr-3"></i>
+              <span
+                >Animation Speed:
+                <span id="speedValue" class="text-purple-300">50</span>
+                ms/step</span
+              >
+            </label>
+            <input
+              id="speedSlider"
+              type="range"
+              min="10"
+              max="200"
+              value="50"
+              class="slider-track w-full h-3 rounded-lg cursor-pointer"
+            />
+            <div
+              class="flex justify-between text-sm text-white text-opacity-70 mt-2"
+            >
+              <span>Slow</span>
+              <span>Medium</span>
+              <span>Fast</span>
+            </div>
+            <p class="text-xs text-white text-opacity-60 mt-3">
+              <i class="fas fa-lightbulb mr-1"></i>
+              Adjust speed to better understand algorithm steps
+            </p>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap gap-4 action-buttons">
+          <button
+            id="startBtn"
+            class="flex-1 min-w-[140px] action-btn bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg"
+          >
+            <span class="flex items-center justify-center">
+              <i class="fas fa-play mr-3"></i>
+              Start
+            </span>
+          </button>
+          <button
+            id="pauseBtn"
+            class="flex-1 min-w-[140px] action-btn bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg"
+            disabled
+          >
+            <span class="flex items-center justify-center">
+              <i class="fas fa-pause mr-3"></i>
+              Pause
+            </span>
+          </button>
+          <button
+            id="resetBtn"
+            class="flex-1 min-w-[140px] action-btn bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg"
+          >
+            <span class="flex items-center justify-center">
+              <i class="fas fa-redo mr-3"></i>
+              Reset
+            </span>
+          </button>
+          <button
+            id="generateBtn"
+            class="flex-1 min-w-[140px] action-btn bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg"
+          >
+            <span class="flex items-center justify-center">
+              <i class="fas fa-random mr-3"></i>
+              New Array
+            </span>
+          </button>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="mt-8 pt-6 border-t border-gray-700 border-opacity-50">
+          <div class="flex flex-wrap items-center justify-between">
+            <div class="flex items-center">
+              <i class="fas fa-graduation-cap text-purple-400 mr-3 text-xl"></i>
+              <div>
+                <h3 class="font-bold text-white">Educational Tool</h3>
+                <p class="text-sm text-white text-opacity-70">
+                  Designed to help understand algorithms visually
+                </p>
+              </div>
+            </div>
+            <div class="mt-4 md:mt-0">
+              <button
+                id="tipsBtn"
+                class="bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-lg text-sm transition-all"
+              >
+                <i class="fas fa-lightbulb mr-2"></i>
+                Show Tips
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="text-center text-white text-opacity-60 text-sm mb-6">
+        <p>
+          Algorithm Visualizer • Interactive Educational Tool • Made with
+          <i class="fas fa-heart text-red-400 mx-1"></i> for learning
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // DOM Elements
+      const visualizationArea = document.getElementById("visualizationArea");
+      const comparisonsElement = document.getElementById("comparisons");
+      const accessesElement = document.getElementById("accesses");
+      const timeElapsedElement = document.getElementById("timeElapsed");
+      const statusElement = document.getElementById("status");
+      const algorithmSelect = document.getElementById("algorithmSelect");
+      const sizeSlider = document.getElementById("sizeSlider");
+      const sizeValue = document.getElementById("sizeValue");
+      const speedSlider = document.getElementById("speedSlider");
+      const speedValue = document.getElementById("speedValue");
+      const startBtn = document.getElementById("startBtn");
+      const pauseBtn = document.getElementById("pauseBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const generateBtn = document.getElementById("generateBtn");
+      const sortingModeBtn = document.getElementById("sortingModeBtn");
+      const searchingModeBtn = document.getElementById("searchingModeBtn");
+      const algorithmInfo = document.getElementById("algorithmInfo");
+      const algorithmDescription = document.getElementById(
+        "algorithmDescription"
+      );
+      const minValue = document.getElementById("minValue");
+      const maxValue = document.getElementById("maxValue");
+      const fullscreenBtn = document.getElementById("fullscreenBtn");
+      const tipsBtn = document.getElementById("tipsBtn");
+      const placeholderText = document.getElementById("placeholderText");
+
+      // Algorithm data
+      const sortingAlgorithms = [
+        {
+          id: "bubble",
+          name: "Bubble Sort",
+          description:
+            "Repeatedly steps through the list, compares adjacent elements and swaps them if they are in the wrong order.",
+          complexity: "O(n²)",
+        },
+        {
+          id: "selection",
+          name: "Selection Sort",
+          description:
+            "Divides the input list into two parts: sorted and unsorted. Repeatedly selects the smallest element from unsorted part and moves it to sorted part.",
+          complexity: "O(n²)",
+        },
+        {
+          id: "insertion",
+          name: "Insertion Sort",
+          description:
+            "Builds the final sorted array one item at a time by repeatedly taking the next element and inserting it into the correct position.",
+          complexity: "O(n²)",
+        },
+        {
+          id: "merge",
+          name: "Merge Sort",
+          description:
+            "Divides the unsorted list into n sublists, each containing one element, then repeatedly merges sublists to produce new sorted sublists.",
+          complexity: "O(n log n)",
+        },
+        {
+          id: "quick",
+          name: "Quick Sort",
+          description:
+            "Selects a pivot element and partitions the array around the pivot, placing smaller elements before and larger after, then recursively sorts the subarrays.",
+          complexity: "O(n log n)",
+        },
+        {
+          id: "heap",
+          name: "Heap Sort",
+          description:
+            "Creates a heap data structure (max-heap) and repeatedly extracts the maximum element from it to build the sorted array.",
+          complexity: "O(n log n)",
+        },
+      ];
+
+      const searchingAlgorithms = [
+        {
+          id: "linear",
+          name: "Linear Search",
+          description:
+            "Sequentially checks each element of the list until a match is found or the whole list has been searched.",
+          complexity: "O(n)",
+        },
+        {
+          id: "binary",
+          name: "Binary Search",
+          description:
+            "Finds the position of a target value within a sorted array by repeatedly dividing the search interval in half.",
+          complexity: "O(log n)",
+        },
+        {
+          id: "jump",
+          name: "Jump Search",
+          description:
+            "Searches sorted arrays by jumping ahead by fixed steps, then performing a linear search in the block where the element may be present.",
+          complexity: "O(√n)",
+        },
+        {
+          id: "interpolation",
+          name: "Interpolation Search",
+          description:
+            "An improved variant of binary search for uniformly distributed data that estimates the position of the target value.",
+          complexity: "O(log log n)",
+        },
+      ];
+
+      // State variables
+      let currentMode = "sorting";
+      let currentAlgorithm = "bubble";
+      let arraySize = 50;
+      let speed = 50;
+      let isRunning = false;
+      let isPaused = false;
+      let animationId = null;
+      let array = [];
+      let comparisons = 0;
+      let accesses = 0;
+      let startTime = 0;
+      let timer = null;
+
+      // Initialize
+      function init() {
+        populateAlgorithmSelect();
+        generateNewArray();
+        updateUI();
+        setupEventListeners();
+      }
+
+      // Populate algorithm select dropdown
+      function populateAlgorithmSelect() {
+        algorithmSelect.innerHTML = "";
+        const algorithms =
+          currentMode === "sorting" ? sortingAlgorithms : searchingAlgorithms;
+
+        algorithms.forEach((algo) => {
+          const option = document.createElement("option");
+          option.value = algo.id;
+          option.textContent = algo.name;
+          algorithmSelect.appendChild(option);
+        });
+
+        // Set the first algorithm as selected
+        currentAlgorithm = algorithms[0].id;
+        updateAlgorithmInfo();
+      }
+
+      // Generate a new random array
+      function generateNewArray() {
+        array = [];
+        const min = 10;
+        const max = 100;
+
+        for (let i = 0; i < arraySize; i++) {
+          array.push(Math.floor(Math.random() * (max - min + 1)) + min);
+        }
+
+        minValue.textContent = `Min: ${Math.min(...array)}`;
+        maxValue.textContent = `Max: ${Math.max(...array)}`;
+
+        renderArray();
+        resetMetrics();
+
+        // Hide placeholder text
+        if (placeholderText) {
+          placeholderText.style.display = "none";
+        }
+      }
+
+      // Render array as bars in visualization area
+      function renderArray(highlightIndices = [], highlightType = "") {
+        visualizationArea.innerHTML = "";
+        const maxValue = Math.max(...array);
+        const containerHeight = visualizationArea.clientHeight;
+
+        array.forEach((value, index) => {
+          const bar = document.createElement("div");
+          bar.className = "bar";
+          bar.style.height = `${(value / maxValue) * 80}%`;
+          bar.style.width = `${Math.max(3, 100 / arraySize - 0.5)}%`;
+          bar.style.backgroundColor = getBarColor(
+            index,
+            highlightIndices,
+            highlightType
+          );
+
+          // Add value label on hover for smaller arrays
+          if (arraySize <= 40) {
+            bar.title = `Value: ${value}`;
+            const label = document.createElement("div");
+            label.className = "text-center text-xs text-white mt-1";
+            label.textContent = value;
+            label.style.transform = "rotate(-90deg)";
+            label.style.transformOrigin = "top left";
+            label.style.position = "absolute";
+            label.style.bottom = "-15px";
+            bar.appendChild(label);
+          }
+
+          // Add tooltip for all bars
+          bar.setAttribute("data-value", value);
+
+          visualizationArea.appendChild(bar);
+        });
+      }
+
+      // Get bar color based on state
+      function getBarColor(index, highlightIndices, highlightType) {
+        if (highlightIndices.includes(index)) {
+          switch (highlightType) {
+            case "compare":
+              return "#3b82f6"; // Blue
+            case "swap":
+              return "#ef4444"; // Red
+            case "sorted":
+              return "#10b981"; // Green
+            case "selected":
+              return "#a855f7"; // Purple
+            default:
+              return "#8b5cf6"; // Purple
+          }
+        }
+
+        // Default gradient based on value
+        const intensity = array[index] / 100;
+        return `rgba(139, 92, 246, ${0.5 + intensity * 0.5})`;
+      }
+
+      // Reset metrics
+      function resetMetrics() {
+        comparisons = 0;
+        accesses = 0;
+        comparisonsElement.textContent = "0";
+        accessesElement.textContent = "0";
+        timeElapsedElement.textContent = "0ms";
+        statusElement.textContent = "Ready";
+        statusElement.className = "text-white text-2xl font-bold status-ready";
+
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+        }
+      }
+
+      // Update metrics display
+      function updateMetrics() {
+        comparisonsElement.textContent = comparisons;
+        accessesElement.textContent = accesses;
+
+        if (isRunning && !isPaused) {
+          const elapsed = Date.now() - startTime;
+          timeElapsedElement.textContent = `${elapsed}ms`;
+        }
+      }
+
+      // Update algorithm info display
+      function updateAlgorithmInfo() {
+        const algorithms =
+          currentMode === "sorting" ? sortingAlgorithms : searchingAlgorithms;
+        const algo = algorithms.find((a) => a.id === currentAlgorithm);
+
+        if (algo) {
+          algorithmInfo.innerHTML = `<i class="fas fa-info-circle text-purple-400 mr-2"></i>
+                    <span class="font-bold">${algo.name}</span> - ${algo.description}
+                    <span class="ml-2 px-2 py-1 bg-gray-700 rounded text-xs">Time Complexity: ${algo.complexity}</span>`;
+
+          algorithmDescription.textContent = algo.description;
+        }
+      }
+
+      // Update UI based on current state
+      function updateUI() {
+        // Update mode buttons
+        if (currentMode === "sorting") {
+          sortingModeBtn.className = sortingModeBtn.className.replace(
+            "from-gray-700 to-gray-900",
+            "from-purple-600 to-purple-800"
+          );
+          searchingModeBtn.className = searchingModeBtn.className.replace(
+            "from-purple-600 to-purple-800",
+            "from-gray-700 to-gray-900"
+          );
+        } else {
+          searchingModeBtn.className = searchingModeBtn.className.replace(
+            "from-gray-700 to-gray-900",
+            "from-purple-600 to-purple-800"
+          );
+          sortingModeBtn.className = sortingModeBtn.className.replace(
+            "from-purple-600 to-purple-800",
+            "from-gray-700 to-gray-900"
+          );
+        }
+
+        // Update algorithm select
+        const algorithms =
+          currentMode === "sorting" ? sortingAlgorithms : searchingAlgorithms;
+        const algo = algorithms.find((a) => a.id === currentAlgorithm);
+        if (algo) {
+          for (let i = 0; i < algorithmSelect.options.length; i++) {
+            if (algorithmSelect.options[i].value === currentAlgorithm) {
+              algorithmSelect.selectedIndex = i;
+              break;
+            }
+          }
+        }
+
+        // Update buttons based on state
+        if (isRunning && !isPaused) {
+          startBtn.disabled = true;
+          startBtn.innerHTML =
+            '<span class="flex items-center justify-center"><i class="fas fa-play mr-3"></i>Running</span>';
+          pauseBtn.disabled = false;
+          statusElement.textContent = "Running";
+          statusElement.className =
+            "text-white text-2xl font-bold status-running";
+        } else if (isRunning && isPaused) {
+          startBtn.disabled = false;
+          startBtn.innerHTML =
+            '<span class="flex items-center justify-center"><i class="fas fa-play mr-3"></i>Resume</span>';
+          pauseBtn.disabled = false;
+          statusElement.textContent = "Paused";
+          statusElement.className =
+            "text-white text-2xl font-bold status-paused";
+        } else {
+          startBtn.disabled = false;
+          startBtn.innerHTML =
+            '<span class="flex items-center justify-center"><i class="fas fa-play mr-3"></i>Start</span>';
+          pauseBtn.disabled = true;
+
+          if (array.every((val, i, arr) => i === 0 || val >= arr[i - 1])) {
+            statusElement.textContent = "Sorted";
+            statusElement.className =
+              "text-white text-2xl font-bold status-completed";
+          } else {
+            statusElement.textContent = "Ready";
+            statusElement.className =
+              "text-white text-2xl font-bold status-ready";
+          }
+        }
+
+        updateAlgorithmInfo();
+      }
+
+      // Setup event listeners
+      function setupEventListeners() {
+        // Mode buttons
+        sortingModeBtn.addEventListener("click", () => {
+          currentMode = "sorting";
+          populateAlgorithmSelect();
+          updateUI();
+        });
+
+        searchingModeBtn.addEventListener("click", () => {
+          currentMode = "searching";
+          populateAlgorithmSelect();
+          updateUI();
+        });
+
+        // Algorithm select
+        algorithmSelect.addEventListener("change", () => {
+          currentAlgorithm = algorithmSelect.value;
+          updateUI();
+        });
+
+        // Size slider
+        sizeSlider.addEventListener("input", () => {
+          arraySize = parseInt(sizeSlider.value);
+          sizeValue.textContent = arraySize;
+          generateNewArray();
+          updateUI();
+        });
+
+        // Speed slider
+        speedSlider.addEventListener("input", () => {
+          speed = parseInt(speedSlider.value);
+          speedValue.textContent = speed;
+        });
+
+        // Control buttons
+        startBtn.addEventListener("click", () => {
+          if (!isRunning) {
+            startAlgorithm();
+          } else if (isPaused) {
+            resumeAlgorithm();
+          }
+        });
+
+        pauseBtn.addEventListener("click", () => {
+          if (isRunning && !isPaused) {
+            pauseAlgorithm();
+          }
+        });
+
+        resetBtn.addEventListener("click", () => {
+          resetAlgorithm();
+        });
+
+        generateBtn.addEventListener("click", () => {
+          generateNewArray();
+          updateUI();
+        });
+
+        // Fullscreen button
+        fullscreenBtn.addEventListener("click", toggleFullscreen);
+
+        // Tips button
+        tipsBtn.addEventListener("click", showTips);
+
+        // Update UI when sliders change
+        sizeSlider.addEventListener("input", updateUI);
+        speedSlider.addEventListener("input", updateUI);
+      }
+
+      // Start algorithm visualization
+      function startAlgorithm() {
+        if (isRunning) return;
+
+        isRunning = true;
+        isPaused = false;
+        startTime = Date.now();
+
+        // Start timer
+        timer = setInterval(() => {
+          if (isRunning && !isPaused) {
+            const elapsed = Date.now() - startTime;
+            timeElapsedElement.textContent = `${elapsed}ms`;
+          }
+        }, 100);
+
+        // Execute selected algorithm
+        if (currentMode === "sorting") {
+          executeSortingAlgorithm();
+        } else {
+          executeSearchingAlgorithm();
+        }
+
+        updateUI();
+      }
+
+      // Pause algorithm visualization
+      function pauseAlgorithm() {
+        isPaused = true;
+        updateUI();
+      }
+
+      // Resume algorithm visualization
+      function resumeAlgorithm() {
+        isPaused = false;
+        updateUI();
+      }
+
+      // Reset algorithm visualization
+      function resetAlgorithm() {
+        isRunning = false;
+        isPaused = false;
+
+        if (animationId) {
+          cancelAnimationFrame(animationId);
+          animationId = null;
+        }
+
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+        }
+
+        generateNewArray();
+        updateUI();
+      }
+
+      // Execute sorting algorithm based on selection
+      async function executeSortingAlgorithm() {
+        switch (currentAlgorithm) {
+          case "bubble":
+            await bubbleSort();
+            break;
+          case "selection":
+            await selectionSort();
+            break;
+          case "insertion":
+            await insertionSort();
+            break;
+          case "merge":
+            await mergeSort();
+            break;
+          case "quick":
+            await quickSort();
+            break;
+          case "heap":
+            await heapSort();
+            break;
+        }
+
+        // Mark all as sorted when done
+        if (isRunning) {
+          renderArray(
+            array.map((_, i) => i),
+            "sorted"
+          );
+          isRunning = false;
+          updateUI();
+        }
+      }
+
+      // Execute searching algorithm based on selection
+      async function executeSearchingAlgorithm() {
+        // For searching, we need a target value
+        const target = array[Math.floor(Math.random() * array.length)];
+
+        switch (currentAlgorithm) {
+          case "linear":
+            await linearSearch(target);
+            break;
+          case "binary":
+            // Binary search requires sorted array
+            array.sort((a, b) => a - b);
+            renderArray();
+            await binarySearch(target);
+            break;
+          case "jump":
+            // Jump search requires sorted array
+            array.sort((a, b) => a - b);
+            renderArray();
+            await jumpSearch(target);
+            break;
+          case "interpolation":
+            // Interpolation search requires sorted array
+            array.sort((a, b) => a - b);
+            renderArray();
+            await interpolationSearch(target);
+            break;
+        }
+
+        if (isRunning) {
+          isRunning = false;
+          updateUI();
+        }
+      }
+
+      // Sorting Algorithms
+
+      async function bubbleSort() {
+        const n = array.length;
+        for (let i = 0; i < n - 1; i++) {
+          for (let j = 0; j < n - i - 1; j++) {
+            if (!isRunning) return;
+            while (isPaused) await sleep(100);
+
+            comparisons++;
+            accesses += 2;
+            updateMetrics();
+
+            renderArray([j, j + 1], "compare");
+            await sleep(speed);
+
+            if (array[j] > array[j + 1]) {
+              // Swap
+              [array[j], array[j + 1]] = [array[j + 1], array[j]];
+              accesses += 2;
+              renderArray([j, j + 1], "swap");
+              await sleep(speed);
+            }
+          }
+
+          // Mark last element as sorted
+          renderArray([n - i - 1], "sorted");
+        }
+        renderArray([0], "sorted"); // Mark first element as sorted
+      }
+
+      async function selectionSort() {
+        const n = array.length;
+        for (let i = 0; i < n - 1; i++) {
+          let minIdx = i;
+
+          for (let j = i + 1; j < n; j++) {
+            if (!isRunning) return;
+            while (isPaused) await sleep(100);
+
+            comparisons++;
+            accesses += 2;
+            updateMetrics();
+
+            renderArray([minIdx, j], "compare");
+            await sleep(speed);
+
+            if (array[j] < array[minIdx]) {
+              minIdx = j;
+            }
+          }
+
+          // Swap
+          [array[i], array[minIdx]] = [array[minIdx], array[i]];
+          accesses += 2;
+          renderArray([i, minIdx], "swap");
+          await sleep(speed);
+
+          // Mark current as sorted
+          renderArray([i], "sorted");
+          await sleep(speed);
+        }
+        renderArray([n - 1], "sorted"); // Mark last element as sorted
+      }
+
+      async function insertionSort() {
+        const n = array.length;
+        for (let i = 1; i < n; i++) {
+          let key = array[i];
+          let j = i - 1;
+
+          accesses++;
+          renderArray([i], "selected");
+          await sleep(speed);
+
+          while (j >= 0 && array[j] > key) {
+            if (!isRunning) return;
+            while (isPaused) await sleep(100);
+
+            comparisons++;
+            accesses += 2;
+            updateMetrics();
+
+            renderArray([j, j + 1], "compare");
+            await sleep(speed);
+
+            array[j + 1] = array[j];
+            accesses++;
+            renderArray([j, j + 1], "swap");
+            await sleep(speed);
+
+            j--;
+          }
+
+          array[j + 1] = key;
+          accesses++;
+          renderArray([j + 1], "sorted");
+          await sleep(speed);
+        }
+
+        // Mark all as sorted
+        for (let i = 0; i < n; i++) {
+          renderArray([i], "sorted");
+          await sleep(speed / 2);
+        }
+      }
+
+      async function mergeSort() {
+        await mergeSortHelper(0, array.length - 1);
+
+        // Mark all as sorted
+        for (let i = 0; i < array.length; i++) {
+          renderArray([i], "sorted");
+          await sleep(speed / 5);
+        }
+      }
+
+      async function mergeSortHelper(left, right) {
+        if (left >= right || !isRunning) return;
+
+        const mid = Math.floor((left + right) / 2);
+
+        await mergeSortHelper(left, mid);
+        await mergeSortHelper(mid + 1, right);
+
+        // Visualize merging
+        renderArray(
+          [...Array(right - left + 1).keys()].map((i) => i + left),
+          "compare"
+        );
+        await sleep(speed);
+
+        // Merge the two halves
+        let i = left,
+          j = mid + 1;
+        const temp = [];
+
+        while (i <= mid && j <= right) {
+          if (!isRunning) return;
+          while (isPaused) await sleep(100);
+
+          comparisons++;
+          accesses += 2;
+          updateMetrics();
+
+          renderArray([i, j], "compare");
+          await sleep(speed);
+
+          if (array[i] <= array[j]) {
+            temp.push(array[i++]);
+          } else {
+            temp.push(array[j++]);
+          }
+        }
+
+        while (i <= mid) {
+          temp.push(array[i++]);
+        }
+
+        while (j <= right) {
+          temp.push(array[j++]);
+        }
+
+        // Copy back to original array
+        for (let k = left; k <= right; k++) {
+          array[k] = temp[k - left];
+          accesses++;
+
+          if (!isRunning) return;
+          while (isPaused) await sleep(100);
+
+          renderArray([k], "swap");
+          await sleep(speed / 2);
+        }
+      }
+
+      async function quickSort() {
+        await quickSortHelper(0, array.length - 1);
+
+        // Mark all as sorted
+        for (let i = 0; i < array.length; i++) {
+          renderArray([i], "sorted");
+          await sleep(speed / 5);
+        }
+      }
+
+      async function quickSortHelper(low, high) {
+        if (low < high && isRunning) {
+          const pi = await partition(low, high);
+
+          await quickSortHelper(low, pi - 1);
+          await quickSortHelper(pi + 1, high);
+        }
+      }
+
+      async function partition(low, high) {
+        const pivot = array[high];
+        accesses++;
+
+        let i = low - 1;
+
+        renderArray([high], "selected");
+        await sleep(speed);
+
+        for (let j = low; j < high; j++) {
+          if (!isRunning) return i + 1;
+          while (isPaused) await sleep(100);
+
+          comparisons++;
+          accesses++;
+          updateMetrics();
+
+          renderArray([j, high], "compare");
+          await sleep(speed);
+
+          if (array[j] < pivot) {
+            i++;
+
+            // Swap
+            [array[i], array[j]] = [array[j], array[i]];
+            accesses += 2;
+            renderArray([i, j], "swap");
+            await sleep(speed);
+          }
+        }
+
+        // Swap pivot to correct position
+        [array[i + 1], array[high]] = [array[high], array[i + 1]];
+        accesses += 2;
+        renderArray([i + 1, high], "swap");
+        await sleep(speed);
+
+        // Mark pivot as sorted
+        renderArray([i + 1], "sorted");
+        await sleep(speed);
+
+        return i + 1;
+      }
+
+      async function heapSort() {
+        const n = array.length;
+
+        // Build max heap
+        for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+          if (!isRunning) return;
+          await heapify(n, i);
+        }
+
+        // Extract elements from heap
+        for (let i = n - 1; i > 0; i--) {
+          if (!isRunning) return;
+          while (isPaused) await sleep(100);
+
+          // Move current root to end
+          [array[0], array[i]] = [array[i], array[0]];
+          accesses += 2;
+          renderArray([0, i], "swap");
+          await sleep(speed);
+
+          // Mark as sorted
+          renderArray([i], "sorted");
+          await sleep(speed);
+
+          // Heapify reduced heap
+          await heapify(i, 0);
+        }
+
+        // Mark first element as sorted
+        renderArray([0], "sorted");
+      }
+
+      async function heapify(n, i) {
+        let largest = i;
+        const left = 2 * i + 1;
+        const right = 2 * i + 2;
+
+        if (!isRunning) return;
+        while (isPaused) await sleep(100);
+
+        if (left < n) {
+          comparisons++;
+          accesses += 2;
+          updateMetrics();
+
+          renderArray([largest, left], "compare");
+          await sleep(speed);
+
+          if (array[left] > array[largest]) {
+            largest = left;
+          }
+        }
+
+        if (right < n) {
+          comparisons++;
+          accesses += 2;
+          updateMetrics();
+
+          renderArray([largest, right], "compare");
+          await sleep(speed);
+
+          if (array[right] > array[largest]) {
+            largest = right;
+          }
+        }
+
+        if (largest !== i) {
+          [array[i], array[largest]] = [array[largest], array[i]];
+          accesses += 2;
+          renderArray([i, largest], "swap");
+          await sleep(speed);
+
+          await heapify(n, largest);
+        }
+      }
+
+      // Searching Algorithms
+
+      async function linearSearch(target) {
+        for (let i = 0; i < array.length; i++) {
+          if (!isRunning) return;
+          while (isPaused) await sleep(100);
+
+          comparisons++;
+          accesses++;
+          updateMetrics();
+
+          renderArray([i], "compare");
+          await sleep(speed);
+
+          if (array[i] === target) {
+            // Found
+            renderArray([i], "sorted");
+            await sleep(speed * 3);
+            return;
+          }
+        }
+
+        // Not found
+        await sleep(speed * 3);
+      }
+
+      async function binarySearch(target) {
+        let left = 0,
+          right = array.length - 1;
+
+        while (left <= right) {
+          if (!isRunning) return;
+          while (isPaused) await sleep(100);
+
+          const mid = Math.floor((left + right) / 2);
+
+          comparisons++;
+          accesses++;
+          updateMetrics();
+
+          renderArray([mid], "compare");
+          await sleep(speed);
+
+          if (array[mid] === target) {
+            // Found
+            renderArray([mid], "sorted");
+            await sleep(speed * 3);
+            return;
+          }
+
+          if (array[mid] < target) {
+            // Search right half
+            for (let i = left; i < mid; i++) {
+              renderArray([i], "selected");
+            }
+            left = mid + 1;
+          } else {
+            // Search left half
+            for (let i = mid + 1; i <= right; i++) {
+              renderArray([i], "selected");
+            }
+            right = mid - 1;
+          }
+
+          await sleep(speed);
+        }
+
+        // Not found
+        await sleep(speed * 3);
+      }
+
+      async function jumpSearch(target) {
+        const n = array.length;
+        const step = Math.floor(Math.sqrt(n));
+        let prev = 0;
+
+        // Finding the block where element is present
+        while (array[Math.min(step, n) - 1] < target) {
+          if (!isRunning) return;
+          while (isPaused) await sleep(100);
+
+          prev = step;
+          step += Math.floor(Math.sqrt(n));
+
+          if (prev >= n) {
+            // Not found
+            await sleep(speed * 3);
+            return;
+          }
+
+          renderArray([prev], "compare");
+          await sleep(speed);
+        }
+
+        // Doing a linear search in the found block
+        while (array[prev] < target) {
+          if (!isRunning) return;
+          while (isPaused) await sleep(100);
+
+          prev++;
+          comparisons++;
+          accesses++;
+          updateMetrics();
+
+          renderArray([prev], "compare");
+          await sleep(speed);
+
+          if (prev === Math.min(step, n)) {
+            // Not found
+            await sleep(speed * 3);
+            return;
+          }
+        }
+
+        // Check if element is found
+        comparisons++;
+        accesses++;
+        updateMetrics();
+
+        if (array[prev] === target) {
+          renderArray([prev], "sorted");
+          await sleep(speed * 3);
+          return;
+        }
+
+        // Not found
+        await sleep(speed * 3);
+      }
+
+      async function interpolationSearch(target) {
+        let low = 0,
+          high = array.length - 1;
+
+        while (low <= high && target >= array[low] && target <= array[high]) {
+          if (!isRunning) return;
+          while (isPaused) await sleep(100);
+
+          // Estimate position
+          const pos =
+            low +
+            Math.floor(
+              ((high - low) / (array[high] - array[low])) *
+                (target - array[low])
+            );
+
+          comparisons++;
+          accesses += 3;
+          updateMetrics();
+
+          renderArray([pos], "compare");
+          await sleep(speed);
+
+          if (array[pos] === target) {
+            // Found
+            renderArray([pos], "sorted");
+            await sleep(speed * 3);
+            return;
+          }
+
+          if (array[pos] < target) {
+            // Search right part
+            for (let i = low; i < pos; i++) {
+              renderArray([i], "selected");
+            }
+            low = pos + 1;
+          } else {
+            // Search left part
+            for (let i = pos + 1; i <= high; i++) {
+              renderArray([i], "selected");
+            }
+            high = pos - 1;
+          }
+
+          await sleep(speed);
+        }
+
+        // Not found
+        await sleep(speed * 3);
+      }
+
+      // Utility functions
+      function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
+
+      function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch((err) => {
+            console.log(
+              `Error attempting to enable fullscreen: ${err.message}`
+            );
+          });
+          fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+            fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+          }
+        }
+      }
+
+      function showTips() {
+        alert(
+          "Tips for using Algorithm Visualizer:\n\n" +
+            "1. Start with smaller array sizes to understand the algorithm flow\n" +
+            "2. Use slower speeds to see each step clearly\n" +
+            "3. Hover over bars to see their values\n" +
+            "4. Try different algorithms to compare their approaches\n" +
+            "5. Notice how the number of comparisons and array accesses change\n" +
+            "6. Use 'New Array' to generate different data sets\n" +
+            "7. Binary search requires a sorted array, so it will sort first automatically"
+        );
+      }
+
+      // Initialize when page loads
+      window.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>
